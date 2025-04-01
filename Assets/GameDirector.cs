@@ -1,6 +1,7 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;   //UI 관련 네임스페이스를 추가하는 역할
+using UnityEngine.SceneManagement;
 
 public class GameDirector : MonoBehaviour
 {
@@ -54,5 +55,10 @@ public class GameDirector : MonoBehaviour
          * HP 게이지를 표시하는 비율을 10% 낮춤
          */
         gHpGauge.GetComponent<Image>().fillAmount -= 0.1f;
+
+        if (gHpGauge.GetComponent<Image>().fillAmount == 0.0f)
+        {
+            SceneManager.LoadScene("EndScene");
+        }
     }
 }
