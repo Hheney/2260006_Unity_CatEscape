@@ -92,4 +92,14 @@ public class PlayerController : MonoBehaviour
         transform.position = new Vector2(fLimitXPosRange, fGroundPosY);
         */
     }
+
+    public void RButtonDown() // 오른쪽 버튼을 눌렀을 시 작동되는 메소드
+    {
+        transform.Translate(1, 0, 0);
+    }
+
+    public void LButtonDown() // 왼쪽 버튼을 눌렀을 시 작동되는 메소드
+    {
+        transform.Translate(-1, 0, 0);
+    }
 }
