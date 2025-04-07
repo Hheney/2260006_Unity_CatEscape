@@ -3,19 +3,14 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] float fMaxPosition = 10.0f; //플레이어가 좌, 우 이동시 게임창을 벗어나지 않도록 Vector 최대값 설정 변수
-    [SerializeField] float fMinPosition = -10.0f; //플레이어가 좌, 우 이동시 게임창을 벗어나지 않도록 Vector 최소값 설정 변수
-    float fPositionX = 0.0f; 
+    float fMaxPosition = 10.0f; //플레이어가 좌, 우 이동시 게임창을 벗어나지 않도록 Vector 최대값 설정 변수
+    float fMinPosition = -10.0f; //플레이어가 좌, 우 이동시 게임창을 벗어나지 않도록 Vector 최소값 설정 변수
+    float fPositionX = 0.0f;
 
-    //git
+    //SerializeField를 사용하여 기본 private 접근제어인 fPlayerMoveSpeed를 private 접근제어를 유지한 채로 Inspector 창에서 값을 유연하게 수정하기 위함
+    [SerializeField] float fPlayerMoveSpeed = 10.0f; //플레이어의 이동 속도를 위한 변수
 
-    //private 접근지정자를 사용하지 않아도 기본적으로 private 접근지정을 하지만 의미를 다시한번 상기시키기 위해 사용
-    /*
-    private float fLimitXPosRange = 0.0f;   //X좌표값 범위 제한 변수
-    private const float fMinPosX = -10.5f;      //X좌표의 최소값 상수
-    private const float fMaxPosX = 10.5f;       //X좌표의 최대값 상수
-    private const float fGroundPosY = -3.6f;    //땅의 y좌표값 상수
-    */
+    bool isLeftMove = false, isRightMove = false; //화살표버튼 클릭 여부를 판단하기 위한 bool 변수
 
     /*
      * Start 메소드
@@ -50,6 +45,7 @@ public class PlayerController : MonoBehaviour
          * 키를 누르다가 뗀 순간 : GetKeyUp()
          */
 
+        /*
         //왼쪽 화살표 키가 눌렀을 때 → Input.GetKeyDown(KeyCode.LeftArrow)
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
@@ -61,18 +57,29 @@ public class PlayerController : MonoBehaviour
         {
             transform.Translate(2, 0, 0); //오른쪽으로 3만큼 이동
         }
+        */
 
-        /*
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        //GetKey를 사용하여 키가 눌러져 있을때 지속적인 이동
+        if (Input.GetKey(KeyCode.LeftArrow))
         {
-            transform.Translate(0, 3, 0); //위로 3만큼 이동
+            //Translate 메소드 : 오브젝트를 현재 좌표에서 인수 값만큼 이동시키는 메소드
+            transform.Translate(-fPlayerMoveSpeed * Time.deltaTime, 0.0f, 0.0f); //왼쪽으로 -10.0f * Time.deltaTime 만큼 이동
         }
 
-        if (Input.GetKeyDown(KeyCode.DownArrow))
+        if (Input.GetKey(KeyCode.RightArrow))
         {
-            transform.Translate(0, -3, 0); //아래로 3만큼 이동
-        }*/
+            transform.Translate(fPlayerMoveSpeed * Time.deltaTime, 0.0f, 0.0f); //오른쪽으로 10.0f * Time.deltaTime 만큼 이동
+        }
 
+        //UI 화살표 버튼이 활성화되면 인수 값 만큼 이동시킴.
+        if(isLeftMove)
+        {
+            transform.Translate(-fPlayerMoveSpeed * Time.deltaTime, 0.0f, 0.0f);
+        }
+        else if(isRightMove)
+        {
+            transform.Translate(fPlayerMoveSpeed * Time.deltaTime, 0.0f, 0.0f);
+        }
 
         /*
          * Mathf.Clamp(value, min, max) 메소드
@@ -93,13 +100,40 @@ public class PlayerController : MonoBehaviour
         */
     }
 
+    
+    //방법.1
+    /*
     public void RButtonDown() // 오른쪽 버튼을 눌렀을 시 작동되는 메소드
     {
-        transform.Translate(1, 0, 0);
+        transform.Translate(40.0f * Time.deltaTime, 0, 0);
     }
 
     public void LButtonDown() // 왼쪽 버튼을 눌렀을 시 작동되는 메소드
     {
-        transform.Translate(-1, 0, 0);
+        transform.Translate(-40.0f * Time.deltaTime, 0, 0);
+    }
+    */
+
+    //방법.2
+    //Event Trigger 컴포넌트를 사용하여 Pointer Down, Up의 이벤트 활성화시, 각각 bool 변수를 참과 거짓으로 변경하는 메소드
+    public void f_LMoveButtonDown()
+    {
+        isLeftMove = true;
+    }
+
+    public void f_LMoveButtonUp()
+    {
+        isLeftMove = false;
+    }
+
+
+    public void f_RMoveButtonDown()
+    {
+        isRightMove = true;
+    }
+
+    public void f_RMoveButtonUp()
+    {
+        isRightMove = false;
     }
 }

@@ -2,6 +2,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;   //UI 관련 네임스페이스를 추가하는 역할
 using UnityEngine.SceneManagement;
+using JetBrains.Annotations;
 
 public class GameDirector : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class GameDirector : MonoBehaviour
      * 그러기 위해서 Object 변수를 선언해서 HpGauge Image Object를 저장
      */
     GameObject gHpGauge = null;
+    GameObject gRestartButton = null;
+    GameObject gTextGameover = null;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -22,6 +26,15 @@ public class GameDirector : MonoBehaviour
          * 각 오브젝트 상자에 대등하는 오브젝트를 씬 안에서 찾아 넣어야 함
          */
         gHpGauge = GameObject.Find("hpgauge");
+
+        //불러오기
+        gRestartButton = GameObject.Find("RestartButton");  //재시작 버튼 오브젝트
+        gTextGameover = GameObject.Find("TextGameover");    //게임오버 문구 오브젝트
+
+        //비활성화
+        gRestartButton.SetActive(false);    //게임 시작시 재시작 버튼 비활성화
+        gTextGameover.SetActive(false);     //게임 시작시 게임 오버 문구 비활성화
+
     }
 
     // Update is called once per frame
@@ -56,9 +69,38 @@ public class GameDirector : MonoBehaviour
          */
         gHpGauge.GetComponent<Image>().fillAmount -= 0.1f;
 
+        //1번 방식(씬 전환)
+        /*
         if (gHpGauge.GetComponent<Image>().fillAmount == 0.0f)
         {
             SceneManager.LoadScene("EndScene");
         }
+        */
+        
+        //2번 방식(시간을 멈춤)
+        if (gHpGauge.GetComponent<Image>().fillAmount == 0.0f)
+        {
+            f_GameOver();
+        }
+    }
+
+    //SetActive or Behaviour.enabled
+
+    //플레이어의 체력이 0이되면 게임을 멈추고, 게임 오버 문구와 재시작 버튼을 띄우는 메소드
+    void f_GameOver()
+    {
+        Time.timeScale = 0f; //게임 내 시간흐름 멈춤
+
+        gTextGameover.SetActive(true);  //게임 오버 문구 활성화
+        gRestartButton.SetActive(true); //재시작 버튼 문구 활성화
+    }
+
+    //게임 재시작 버튼 기능을 위한 메소드, 게임의 시간을 다시 흐르게 하고 게임씬을 다시 불러온다.
+    //OnClick 사용을 위한 public 접근 제어
+    public void f_GameRestart()
+    {
+        Time.timeScale = 1f; //게임 내 시간흐름
+
+        SceneManager.LoadScene("GameScene"); //게임 씬 재로드
     }
 }
