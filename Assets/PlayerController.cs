@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    float fMaxPosition = 10.0f; //플레이어가 좌, 우 이동시 게임창을 벗어나지 않도록 Vector 최대값 설정 변수
-    float fMinPosition = -10.0f; //플레이어가 좌, 우 이동시 게임창을 벗어나지 않도록 Vector 최소값 설정 변수
+    float fMaxPosition = 7.0f; //플레이어가 좌, 우 이동시 게임창을 벗어나지 않도록 Vector 최대값 설정 변수
+    float fMinPosition = -7.0f; //플레이어가 좌, 우 이동시 게임창을 벗어나지 않도록 Vector 최소값 설정 변수
     float fPositionX = 0.0f;
 
     //SerializeField를 사용하여 기본 private 접근제어인 fPlayerMoveSpeed를 private 접근제어를 유지한 채로 Inspector 창에서 값을 유연하게 수정하기 위함
