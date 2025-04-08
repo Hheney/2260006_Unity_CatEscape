@@ -98,7 +98,7 @@ public class GameDirector : MonoBehaviour
     //플레이어의 체력이 0이되면 게임을 멈추고, 게임 오버 문구와 재시작 버튼을 띄우는 메소드
     void f_GameOver()
     {
-        Time.timeScale = 0f; //게임 내 시간흐름 멈춤
+        Time.timeScale = 0.0f; //게임 내 시간흐름 멈춤
 
         gTextGameover.SetActive(true);  //게임 오버 문구 활성화
         gRestartButton.SetActive(true); //재시작 버튼 문구 활성화
@@ -108,7 +108,7 @@ public class GameDirector : MonoBehaviour
     //OnClick 사용을 위한 public 접근 제어
     public void f_GameRestart()
     {
-        Time.timeScale = 1f; //게임 내 시간흐름
+        Time.timeScale = 1.0f; //게임 내 시간흐름
 
         SceneManager.LoadScene("GameScene"); //게임 씬 재로드
     }
