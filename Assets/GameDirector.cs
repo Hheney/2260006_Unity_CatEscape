@@ -86,6 +86,15 @@ public class GameDirector : MonoBehaviour
 
     //SetActive or Behaviour.enabled
 
+    /*
+     * [Unity Manual]
+     * Time Class
+     * time : 프로젝트 재생 시작 후 경과한 시간 초 단위로 반환합니다.
+     * deltaTime : 마지막 프레임이 완료된 후 경과한 시간을 초 단위로 반환합니다. 
+     *             이 값은 게임이나 앱이 실행될 때 초당 프레임(FPS) 속도에 따라 다릅니다.
+     */
+
+
     //플레이어의 체력이 0이되면 게임을 멈추고, 게임 오버 문구와 재시작 버튼을 띄우는 메소드
     void f_GameOver()
     {
