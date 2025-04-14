@@ -3,6 +3,20 @@ using UnityEngine;
 using UnityEngine.UI;   //UI 관련 네임스페이스를 추가하는 역할
 using UnityEngine.SceneManagement;
 using JetBrains.Annotations;
+using TMPro;
+using UnityEngine.Rendering.Universal;
+
+/*
+ * [현재 프로그램의 문제분석]
+ * 게임 재시작의 구동방식에 문제가 있다.
+ * 현재는 SceneManagement를 사용하여 씬을 다시 로딩하는 방식이다.
+ * 완전한 초기화를 보장하나, 로딩이 발생하고 시스템 자원을 소모한다.
+ * 
+ * 따라서, 각 스크립트에 초기화 메소드를 배치하여 재시작 버튼이 모든 게임 상태를 초기 상태로 되돌리는 방식이 필요하다.
+ * 프로그램의 편의성, 메모리 최적화, 확장성을 고려한다면 싱글톤 패턴을 고려해 볼 만하다. 다만 싱글톤 패턴의 단점에 주의하자.
+ * 싱글톤 패턴을 사용한다면 클래스 간 데이터 공유를 원활히 할 수 있다.
+ */
+
 
 public class GameDirector : MonoBehaviour
 {
@@ -11,9 +25,20 @@ public class GameDirector : MonoBehaviour
      * 감독 스크립트를 사용해 HP 게이지를 갱신하려면 감독 스크립트가 HP 게이지의 실체를 조작할 수 있어야 함
      * 그러기 위해서 Object 변수를 선언해서 HpGauge Image Object를 저장
      */
-    GameObject gHpGauge = null;
-    GameObject gRestartButton = null;
-    GameObject gTextGameover = null;
+    GameObject gHpGauge = null;             //HP게이지 오브젝트 변수
+    
+    GameObject gRestartButton = null;       //재시작 버튼 오브젝트 변수
+    GameObject gTextGameover = null;        //게임오버 UI 오브젝트 변수
+    GameObject gTextGameClear = null;       //게임클리어 UI 오브젝트 변수
+
+    GameObject gTextTimer = null;           //타이머 UI 오브젝트 변수
+    GameObject gTextQuantityFish = null;    //물고기 아이템 수량 UI 오브젝트 변수
+
+    [SerializeField]                    //private 접근 유효
+    float fMaxTimeLimit = 30.0f;        //제한 시간 변수 30초 지정
+
+    int nGameClearFishCount = 10;       //게임 클리어 조건
+    int nFishCount = 0;                 //누적 물고기 개수 변수
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -30,9 +55,13 @@ public class GameDirector : MonoBehaviour
         //불러오기
         gRestartButton = GameObject.Find("RestartButton");  //재시작 버튼 오브젝트
         gTextGameover = GameObject.Find("TextGameover");    //게임오버 문구 오브젝트
+        gTextGameClear = GameObject.Find("TextGameClear");  //게임클리어 문구 오브젝트
+        gTextTimer = GameObject.Find("TextTimer");          //타이머 UI 오브젝트 
+        gTextQuantityFish = GameObject.Find("TextQuantityFish"); //물고기 수량 UI 오브젝트
 
         //비활성화
         gRestartButton.SetActive(false);    //게임 시작시 재시작 버튼 비활성화
+        gTextGameClear.SetActive(false);    //게임 시작시 게임 클리어 문구 비활성화
         gTextGameover.SetActive(false);     //게임 시작시 게임 오버 문구 비활성화
 
     }
@@ -40,16 +69,17 @@ public class GameDirector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        f_GameTimeLimit();      //게임 시간을 제한
+        f_PrintRemainTime();    //남은 게임 시간을 출력
     }
 
-         /*
-         * 나중에 화살 컨트롤러에서 HP 게이지 표시를 줄이는 처리를 호출할 것을 고려해
-         * HP 게이지의 처리는 public 메소드를 작성
-         * 화살과 플레이어가 충돌했을 때 화살 컨트롤러가 f_DecreaseHp() 메소드를 호출함
-         * 메소드의 기능은 화살과 플레이어가 충돌했을 때 Image 오브젝트(hpGauge)의 fillAmount를 줄여
-         * Hp게이지를 표시하는 비율을 10% 낮춤
-         */
+    /*
+    * 나중에 화살 컨트롤러에서 HP 게이지 표시를 줄이는 처리를 호출할 것을 고려해
+    * HP 게이지의 처리는 public 메소드를 작성
+    * 화살과 플레이어가 충돌했을 때 화살 컨트롤러가 f_DecreaseHp() 메소드를 호출함
+    * 메소드의 기능은 화살과 플레이어가 충돌했을 때 Image 오브젝트(hpGauge)의 fillAmount를 줄여
+    * Hp게이지를 표시하는 비율을 10% 낮춤
+    */
     public void f_DecreaseHp()
     {
         /*
@@ -104,6 +134,15 @@ public class GameDirector : MonoBehaviour
         gRestartButton.SetActive(true); //재시작 버튼 문구 활성화
     }
 
+    //게임 클리어 조건을 만족할 경우 호출되는 메소드
+    void f_GameClear()
+    {
+        Time.timeScale = 0.0f; //게임 내 시간흐름 멈춤
+
+        gTextGameClear.SetActive(true); //클리어 문구 활성화
+        gRestartButton.SetActive(true); //재시작 버튼 문구 활성화
+    }
+
     //게임 재시작 버튼 기능을 위한 메소드, 게임의 시간을 다시 흐르게 하고 게임씬을 다시 불러온다.
     //OnClick 사용을 위한 public 접근 제어
     public void f_GameRestart()
@@ -111,5 +150,64 @@ public class GameDirector : MonoBehaviour
         Time.timeScale = 1.0f; //게임 내 시간흐름
 
         SceneManager.LoadScene("GameScene"); //게임 씬 재로드
+    }
+
+
+    //게임 시간을 제한하는 메소드
+    void f_GameTimeLimit()
+    {
+        if(fMaxTimeLimit > 0.0f) //제한 시간이 0초가 아니면
+        {
+            fMaxTimeLimit -= Time.deltaTime; //프레임 시간 만큼 감소 
+
+            if(fMaxTimeLimit <= 0.0f) //제한 시간이 0초면
+            {
+                f_GameOver(); //게임 오버
+            }
+        }
+    }
+
+    /*
+     * 남은 시간을 출력하는 메소드
+     * [추가 기능]
+     * - 남은 시간이 10초 이하일 경우 UI가 빨간색으로 변경되며 깜박이게 된다.
+     */
+    void f_PrintRemainTime()
+    {
+        //gTextTimer.GetComponent<TextMeshProUGUI>().text = "Time : " + fMaxTimeLimit.ToString("F1") + "sec"; //남은 시간을 소수점 1번째 자리까지 출력
+
+        TextMeshProUGUI textMeshProUGUI = gTextTimer.GetComponent<TextMeshProUGUI>(); //다중 사용이 예상되어 선언
+
+        float fBlinkSpan = Mathf.PingPong(Time.time * 3, 1.0f); //PingPong 메소드를 사용하여 1.0f초에 3번(Time.time * 3) 깜박이는 효과를 구현하기 위한 깜박임 주기 변수
+                                                                //출력 메소드에서만 사용하기에 지역변수로 선언
+
+        textMeshProUGUI.text = "Time : " + fMaxTimeLimit.ToString("F1") + " sec"; //남은 시간을 소수점 1번째 자리까지 출력
+
+        if (fMaxTimeLimit <= 10.0f) //남은 시간이 10초 이하일 경우
+        {
+            
+            textMeshProUGUI.color = new Color(1.0f, fBlinkSpan, fBlinkSpan); //시간 출력 UI의 RGB 값을 1,0,0 으로 변경(빨간색)
+        }
+        else
+        {
+            textMeshProUGUI.color = new Color(1.0f, 1.0f, 1.0f); //흰색
+        }
+    }
+
+
+    /*
+     * 플레이어가 획득한 물고기 갯수를 출력하고, 물고기 개수가 클리어 조건이라면 게임 클리어시키는 메소드
+     * FishController에서 사용하기 위해 public 접근 제어
+     */
+    public void f_UpdateFishAmountCount()
+    {
+        nFishCount++; //메소드 호출시 물고기 개수 증가
+
+        gTextQuantityFish.GetComponent<TextMeshProUGUI>().text = "Fish : " + nFishCount + "/" + nGameClearFishCount; //물고기의 개수를 출력 : Fish : 1/10
+
+        if(nFishCount >= nGameClearFishCount) //물고기 개수가 클리어 조건을 충족할 경우
+        {
+            f_GameClear(); //게임 클리어 메소드 호출
+        }
     }
 }
