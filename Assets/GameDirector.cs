@@ -26,19 +26,23 @@ public class GameDirector : MonoBehaviour
      * 그러기 위해서 Object 변수를 선언해서 HpGauge Image Object를 저장
      */
     GameObject gHpGauge = null;             //HP게이지 오브젝트 변수
-    
     GameObject gRestartButton = null;       //재시작 버튼 오브젝트 변수
     GameObject gTextGameover = null;        //게임오버 UI 오브젝트 변수
     GameObject gTextGameClear = null;       //게임클리어 UI 오브젝트 변수
-
     GameObject gTextTimer = null;           //타이머 UI 오브젝트 변수
     GameObject gTextQuantityFish = null;    //물고기 아이템 수량 UI 오브젝트 변수
 
     [SerializeField]                    //private 접근 유효
     float fMaxTimeLimit = 30.0f;        //제한 시간 변수 30초 지정
+    
+    float fMaxArrowFallSpeed = 0.5f;    //화살의 최고 낙하 속도
+    float fArrowSpeedIncreaseRate = 0.005f;  //화살의 낙하속도 증가율
+
+    public float fArrowFallSpeed = 0.1f; //화살의 기본 낙하 속도, ArrowController에서 사용되어야 하므로 public 접근 제어
 
     int nGameClearFishCount = 10;       //게임 클리어 조건
     int nFishCount = 0;                 //누적 물고기 개수 변수
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -159,6 +163,12 @@ public class GameDirector : MonoBehaviour
         if(fMaxTimeLimit > 0.0f) //제한 시간이 0초가 아니면
         {
             fMaxTimeLimit -= Time.deltaTime; //프레임 시간 만큼 감소 
+
+            //게임의 시간이 지남에 따라 화살의 낙하 속도를 증가율 만큼 가산함
+            if(fArrowFallSpeed < fMaxArrowFallSpeed) 
+            {
+                fArrowFallSpeed += Time.deltaTime * fArrowSpeedIncreaseRate;
+            }
 
             if(fMaxTimeLimit <= 0.0f) //제한 시간이 0초면
             {

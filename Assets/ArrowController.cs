@@ -3,12 +3,14 @@
  * 화살이 게임화면 밖으로 나오면 화살 오브젝트를 소멸시키는 기능 → Destroy()
  */
 
+using UnityEditor;
 using UnityEngine;
 
 public class ArrowController : MonoBehaviour
 {
     //멤버변수 선언
     GameObject gPlayer = null; //Player Object를 저장할 GameObject 변수, GameObject 변수의 초깃값은 null
+    GameObject gDirector = null; //게임 디렉터 오브젝트 변수
 
     Vector2 vArrowCirclePoint = Vector2.zero;       //화살을 둘러싼 원의 중심 좌표
     Vector2 vPlayerCirclePoint = Vector2.zero;      //플레이어를 둘러싼 원의 중심 좌표
@@ -20,6 +22,8 @@ public class ArrowController : MonoBehaviour
     float fArrowPlayerDistance = 0.0f; //화살의 중심(vArrowCirclePoint) 부터
                                        //플레이어를 둘러싼 원의 중심(vPlayerCirclePoint)까지 거리
 
+    float fArrowFallSpeed = 0.0f; //화살의 낙하 속도 변수 
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -30,18 +34,22 @@ public class ArrowController : MonoBehaviour
          * 각 오브젝트 상자에 대등하는 오브젝트를 씬 안에서 찾아 넣어야 함
          */
         gPlayer = GameObject.Find("player");
+        gDirector = GameObject.Find("GameDirector"); //게임 디렉터 오브젝트를 찾아옴
     }
 
     // Update is called once per frame
     void Update()
     {
+
+        fArrowFallSpeed = gDirector.GetComponent<GameDirector>().fArrowFallSpeed; //게임 디렉터 내 가산되는 화살 낙하 속도를 화살 컨트롤러 화살 낙하 속도 변수에 저장
+
         /*
          * 화살이 위에서 아래로 1초에 하나씩 떨어지는 기능 → tranform.Translate()
          * Translate 메소드 : 오브젝트를 현재 좌표에서 인수 값 만큼 이동시키는 메소드
          * Y좌표에 -0.1f를 지정하면 오브젝트를 조금씩 위에서 아래로 움직인다.
          * 프레임마다 등속으로 낙하시킨다.
          */
-        transform.Translate(0, -0.1f, 0); //아래 방향으로 0.5만큼 이동
+        transform.Translate(0, -fArrowFallSpeed, 0); //아래 방향으로 fArrowFallSpeed만큼 이동
 
         /*
          * 화살이 게임화면 밖으로 나오면 화살 오브젝트를 소멸시키는 기능 → Destroy()
@@ -53,7 +61,7 @@ public class ArrowController : MonoBehaviour
          * 매개변수로 자신(화살 오브젝트)을 가르키는 gameObject 변수를 전달하므로 화살이
          * 화면 밖으로 나갔을 때, 자기 자신을 소멸시킴
          */
-        if(transform.position.y < -5.0f)
+        if (transform.position.y < -5.0f)
         {
             Destroy(gameObject);
         }
@@ -97,7 +105,7 @@ public class ArrowController : MonoBehaviour
              * 즉, ArrowController에서 GameDirector 오브젝트에 있는 f_DecreaseHp() 메소드를 호출하기 때문에
              * Find 메소드를 찾아서 GameDirector 오브젝트를 찾는다.
              */
-            GameObject gDirector = GameObject.Find("GameDirector");
+            //GameObject gDirector = GameObject.Find("GameDirector");
 
 
             /*
